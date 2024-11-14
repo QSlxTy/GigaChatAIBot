@@ -7,8 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 from bot_start import bot
 from integrations.database.models.user_photos import create_photo_db
-from utils.gigachat_api import gigachat_generate_text
-from utils.s3 import s3
+from utils.gigachat_api import generate_main
 from utils.states.user import FSMQuestions
 
 
@@ -18,21 +17,19 @@ async def process_answer(message: types.Message, state: FSMContext, session_make
         os.makedirs(f'files/{message.from_user.id}/')
 
     if message.photo:
+        path = [f'files/{message.from_user.id}/{message.photo[-1].file_id}.jpg']
         await message.delete()
         await bot.download(message.photo[-1].file_id, f'files/{message.from_user.id}/{message.photo[-1].file_id}.jpg')
-        await s3.start_bucket(
-            f'files/{message.from_user.id}/{message.photo[-1].file_id}.jpg', message.photo[-1].file_id
-        )
         await create_photo_db(message.from_user.id, message.photo[-1].file_id, session_maker)
     else:
+        path = []
         for file in message.album:
+            path.append(f'files/{message.from_user.id}/{file.photo[-1].file_id}.jpg')
             await file.delete()
             await bot.download(
                 file.photo[-1].file_id, f'files/{message.from_user.id}/{file.photo[-1].file_id}.jpg'
             )
-            await s3.start_bucket(
-                f'files/{message.from_user.id}/{file.photo[-1].file_id}.jpg', file.photo[-1].file_id
-            )
+
             await create_photo_db(message.from_user.id, file.photo[-1].file_id, session_maker)
 
     try:
@@ -42,7 +39,8 @@ async def process_answer(message: types.Message, state: FSMContext, session_make
         msg = await message.answer(
             text="Отлично! Сейчас я соберу твою историю и начну рисовать твою персональную комикс-историю.")
     await state.update_data(msg=msg)
-    await gigachat_generate_text(data['answers_list'])
+    await generate_main(data['answers_list'], message.from_user.id, path)
+
 
 def register_handler(dp: Dispatcher):
     dp.message.register(process_answer, F.content_type == 'photo', FSMQuestions.wait_photo)

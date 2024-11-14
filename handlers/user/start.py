@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from integrations.database.models.questions import get_random_questions
 from integrations.database.models.user import update_user_db
 from keyboards.user.user_keyboard import agree_rules_kb, start_agree_kb, go_questions_kb
+from src.config import BotConfig
 from utils.states.user import FSMStart
 
 
