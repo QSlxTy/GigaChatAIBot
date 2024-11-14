@@ -35,8 +35,10 @@ class BotConfig:
     gigachat_key: str = getenv('GIGACHAT_API_KEY')
     yandex_access_key: str = getenv('YANDEX_ACCESS_KEY')
     yandex_secret_key: str = getenv('YANDEX_SECRET_KEY')
-    yandex_region: str = getenv('YANDEX_REGION')  # yandex cloud region
+    yandex_region: str = getenv('YANDEX_REGION')
     yandex_bucket_name: str = getenv('YANDEX_BUCKET')
+    replicate_token: str = getenv('REPLICATE_API_KEY')
+
 
 @dataclass
 class Configuration:

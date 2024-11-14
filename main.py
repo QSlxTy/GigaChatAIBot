@@ -1,15 +1,16 @@
-from src.bot.structures.data_structure import TransferData
-from src.config import conf
-
 import asyncio
 import logging
+import os
+
 from bot_start import dp, bot
 from handlers.register_handlers import register_handlers
-
 from integrations.database.sql_alch import create_connection, init_models, get_session_maker
+from src.bot.structures.data_structure import TransferData
+from src.config import conf
 from utils.middlewares.album_md import AlbumMiddleware
 from utils.middlewares.database_md import DatabaseMiddleware
 from utils.middlewares.register_check_md import RegisterCheck
+
 
 
 async def start_bot():
@@ -26,8 +27,9 @@ async def start_bot():
     ''' START BOT PENDING and DROP PENDING UPDATES BY DELETING WEBHOOK'''
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot, skip_updates=True,
-    **TransferData(engine=connection), session_maker=session_maker
-    )
+                           **TransferData(engine=connection), session_maker=session_maker
+                           )
+
 
 if __name__ == '__main__':
     try:
