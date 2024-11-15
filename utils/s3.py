@@ -27,9 +27,12 @@ class S3Cloud:
 
     def url_file_bucket(self, name):
         url = self.s3.generate_presigned_url('get_object',
-                                                   Params={'Bucket': BotConfig.yandex_bucket_name, 'Key': name},
-                                                   ExpiresIn=172800)
+                                             Params={'Bucket': BotConfig.yandex_bucket_name, 'Key': name},
+                                             ExpiresIn=172800)
         return url
+
+    async def delete_file_bucket(self, name):
+        self.s3.delete_object(Bucket=BotConfig.yandex_bucket_name, Key=name)
 
     async def start_bucket(self, path, name):
         self.upload_file_bucket(path, name)

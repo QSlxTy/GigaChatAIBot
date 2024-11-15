@@ -48,7 +48,6 @@ async def process_answer(message: types.Message, state: FSMContext, session_make
     question_index = data['question_index']
     data['answers_list'].append({'question': data['questions'][question_index].text, 'answer': message.text})
     await create_answer_db(message.from_user.id, data['questions'][question_index].group, message.text,session_maker)
-    print(f"Ответ на вопрос '{data['questions'][question_index].group}': {message.text}")
     await ask_question(message.from_user.id, question_index + 1, state, data['message_id'])
     await state.update_data(answers_list=data['answers_list'])
 
