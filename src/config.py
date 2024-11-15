@@ -38,6 +38,7 @@ class BotConfig:
     yandex_region: str = getenv('YANDEX_REGION')
     yandex_bucket_name: str = getenv('YANDEX_BUCKET')
     replicate_token: str = getenv('REPLICATE_API_KEY')
+    replicate_model: str = getenv('REPLICATE_MODEL')
 
 
 @dataclass

@@ -1,11 +1,9 @@
 import ast
-import asyncio
-import base64
 import json
 import os
+from datetime import datetime
 
 import gigachat
-import replicate
 
 from src.config import BotConfig
 from utils.prompts import generate_text_prompt, generate_photo_prompt
@@ -14,6 +12,7 @@ from utils.replicate_api import replicate_func
 REPLICATE_API_TOKEN = BotConfig.replicate_token
 
 os.environ["REPLICATE_API_TOKEN"] = REPLICATE_API_TOKEN
+
 
 async def transform_input(input_string):
     print(input_string)
@@ -36,16 +35,19 @@ async def transform_input(input_string):
 
 
 async def gigachat_generate_text(data):
-    giga = gigachat.GigaChat(credentials=BotConfig.gigachat_key, verify_ssl_certs=False)
+    giga = gigachat.GigaChat(credentials=BotConfig.gigachat_key, verify_ssl_certs=False, model="GigaChat-Pro")
     response = giga.chat(f'{generate_text_prompt} Вот входящие данные в формате JSON: {data}')
-    print(response.choices[0].message.content)
-    return response.choices[0].message.content
+    start_index = response.choices[0].message.content.find('[')
+    end_index = response.choices[0].message.content.rfind(']')
+    if start_index != -1 and end_index != -1:
+        response = response.choices[0].message.content[start_index:end_index + 1]
+    return ast.literal_eval(response)
 
 
 async def gigachat_generate_prompt(data):
-    giga = gigachat.GigaChat(credentials=BotConfig.gigachat_key, verify_ssl_certs=False)
+    giga = gigachat.GigaChat(credentials=BotConfig.gigachat_key, verify_ssl_certs=False, model="GigaChat-Pro")
     response = giga.chat(f'{generate_photo_prompt} Вот входящие данные в формате list: {data}')
-    print(response.choices[0].message.content)
+    print('Ответ генерации визуализации API -', response.choices[0].message.content)
     start_index = response.choices[0].message.content.find('[')
     end_index = response.choices[0].message.content.rfind(']')
     if start_index != -1 and end_index != -1:
@@ -54,19 +56,22 @@ async def gigachat_generate_prompt(data):
 
 
 async def gigachat_generate_photo(data_list, user_id):
-    input_images = []
-    for file in os.listdir(f'files/{user_id}/'):
-        with open(f'files/{user_id}/{file}', 'rb') as f:
-            data = base64.b64encode(f.read()).decode('utf-8')
-            input_images.append(f"data:application/octet-stream;base64,{data}")
     output_list = []
-    for data in data_list:
-        output_list.append(await replicate_func(input_images, data))
+    for index, data in enumerate(data_list):
+        output = await replicate_func(data, user_id)
+        for index_output, item in enumerate(output):
+            with open(f"files/{user_id}_generated/output_{index}.png", "wb") as file:
+                file.write(item.read())
+            break
+        output_list.append(f"files/{user_id}_generated/output_{index}.png")
     return output_list
 
 
-async def generate_main(text, user_id, path):
+async def generate_main(text, path_list, user_id):
     text_response = await gigachat_generate_text(text)
+    print(text_response)
     prompt_response_list = await gigachat_generate_prompt(text_response)
-    photo_list = await gigachat_generate_photo(prompt_response_list, user_id)
-    print(photo_list)
+    print(prompt_response_list)
+    photo_path_list = await gigachat_generate_photo(prompt_response_list, user_id)
+    print(photo_path_list)
+    return photo_path_list, text_response

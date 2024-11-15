@@ -10,13 +10,14 @@ from integrations.database.models.questions import get_random_questions
 from integrations.database.models.user import update_user_db
 from keyboards.user.user_keyboard import agree_rules_kb, start_agree_kb, go_questions_kb
 from src.config import BotConfig
-from utils.states.user import FSMStart
+from utils.states.user import FSMStart, FSMQuestions
 
 
 async def start_command(message: types.Message, state: FSMContext):
     data = await state.get_data()
     await state.set_state(FSMStart.start)
     await message.delete()
+    await state.set_state(FSMQuestions.wait_photo)
     try:
         msg = await data['msg'].edit_text(
             text="<b>Привет! Я бот, который поможет тебе подвести итоги твоего года с помощью персонализированного "
@@ -27,10 +28,11 @@ async def start_command(message: types.Message, state: FSMContext):
             text="<b>Привет! Я бот, который поможет тебе подвести итоги твоего года с помощью персонализированного "
                  "комикса. Впереди тебя ждет увлекательное путешествие по воспоминаниям! Начнем?</b>",
             reply_markup=await start_agree_kb())
-    await state.update_data(msg=msg)
+    await state.update_data(msg=msg, ansers_list=[])
 
 
 async def agree_rules(call: types.CallbackQuery, state: FSMContext):
+
     data = await state.get_data()
     try:
         msg = await data['msg'].edit_text(
