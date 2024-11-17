@@ -55,13 +55,14 @@ async def gigachat_generate_prompt(data):
     return ast.literal_eval(response)
 
 
-async def gigachat_generate_photo(data_list, user_id):
+async def gigachat_generate_photo(data_list, user_id, path_list):
     output_list = []
     for index, data in enumerate(data_list):
-        output = await replicate_func(data, user_id)
+        output = await replicate_func(data, user_id, path_list)
         for index_output, item in enumerate(output):
             with open(f"files/{user_id}_generated/output_{index}.png", "wb") as file:
                 file.write(item.read())
+                file.close()
             break
         output_list.append(f"files/{user_id}_generated/output_{index}.png")
     return output_list
@@ -72,6 +73,6 @@ async def generate_main(text, path_list, user_id):
     print(text_response)
     prompt_response_list = await gigachat_generate_prompt(text_response)
     print(prompt_response_list)
-    photo_path_list = await gigachat_generate_photo(prompt_response_list, user_id)
+    photo_path_list = await gigachat_generate_photo(prompt_response_list, user_id, path_list)
     print(photo_path_list)
     return photo_path_list, text_response
