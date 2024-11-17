@@ -23,3 +23,16 @@ async def go_questions_kb():
     builder = InlineKeyboardBuilder()
     builder.button(text='Далее', callback_data='go_questions')
     return builder.as_markup()
+
+
+async def skip_photo_kb():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Пропустить фото?', callback_data='skip_photo')
+    return builder.as_markup()
+
+
+async def choose_style_kb():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Романтик', callback_data='choose_style:romantic')
+    builder.button(text='Активная', callback_data='choose_style:active')
+    return builder.as_markup()

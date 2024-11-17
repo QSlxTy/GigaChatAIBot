@@ -6,10 +6,14 @@ import replicate
 from src.config import BotConfig
 
 
-async def replicate_func(prompt, user_id):
+async def replicate_func(prompt, user_id, path_list):
     input_images = []
-    for file in os.listdir(f'files/{user_id}'):
-        input_images.append(open(f'files/{user_id}/{file}', "rb"))
+    if path_list is not None:
+        for path in path_list:
+            with open(path, "rb") as file:
+                input_images.append(file)
+        else:
+            input_images = []
     input_data = {
         "num_steps": 75,
         "style_name": "Disney Charactor",
@@ -42,4 +46,6 @@ async def replicate_func(prompt, user_id):
         BotConfig.replicate_model,
         input=input_data
     )
+    for file in input_images:
+        file.close()
     return output
