@@ -1,10 +1,10 @@
 import ast
 import json
 import os
-from datetime import datetime
 
 import gigachat
 
+from integrations.database.models.stories import create_stories_db
 from src.config import BotConfig
 from utils.prompts import generate_text_prompt, generate_photo_prompt
 from utils.replicate_api import replicate_func
@@ -41,7 +41,7 @@ async def gigachat_generate_text(data):
     end_index = response.choices[0].message.content.rfind(']')
     if start_index != -1 and end_index != -1:
         response = response.choices[0].message.content[start_index:end_index + 1]
-    return ast.literal_eval(response)
+    return ast.literal_eval(response), response.usage.total_tokens
 
 
 async def gigachat_generate_prompt(data):
@@ -52,10 +52,10 @@ async def gigachat_generate_prompt(data):
     end_index = response.choices[0].message.content.rfind(']')
     if start_index != -1 and end_index != -1:
         response = response.choices[0].message.content[start_index:end_index + 1]
-    return ast.literal_eval(response)
+    return ast.literal_eval(response), response.usage.total_tokens
 
 
-async def gigachat_generate_photo(data_list, user_id, path_list):
+async def replicate_generate_photo(data_list, user_id, path_list):
     output_list = []
     for index, data in enumerate(data_list):
         output = await replicate_func(data, user_id, path_list)
@@ -68,11 +68,12 @@ async def gigachat_generate_photo(data_list, user_id, path_list):
     return output_list
 
 
-async def generate_main(text, path_list, user_id):
-    text_response = await gigachat_generate_text(text)
+async def generate_main(text, path_list, user_id, style, session_maker):
+    text_response, total_tokens = await gigachat_generate_text(text)
     print(text_response)
-    prompt_response_list = await gigachat_generate_prompt(text_response)
+    await create_stories_db(user_id, text_response, int(total_tokens), session_maker)
+    prompt_response_list, total_tokens = await gigachat_generate_prompt(text_response)
     print(prompt_response_list)
-    photo_path_list = await gigachat_generate_photo(prompt_response_list, user_id, path_list)
+    photo_path_list = await replicate_generate_photo(prompt_response_list, user_id, path_list)
     print(photo_path_list)
     return photo_path_list, text_response

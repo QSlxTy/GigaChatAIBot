@@ -16,7 +16,7 @@ class User(AbstractModel):
     is_admin: Mapped[bool] = mapped_column(default=False)
 
 
-async def get_user(select_by: dict, session_maker: sessionmaker) -> User:
+async def get_user_db(select_by: dict, session_maker: sessionmaker) -> User:
     async with session_maker() as session:
         async with session.begin():
             result = await session.execute(
@@ -25,7 +25,7 @@ async def get_user(select_by: dict, session_maker: sessionmaker) -> User:
             return result.scalars().one()
 
 
-async def create_user(user_id: int, session_maker: sessionmaker) -> [User, Exception]:
+async def create_user_db(user_id: int, session_maker: sessionmaker) -> [User, Exception]:
     async with session_maker() as session:
         async with session.begin():
             user = User(
@@ -54,7 +54,7 @@ async def update_user_db(telegram_id: int, data: dict, session_maker: sessionmak
             await session.commit()
 
 
-async def get_users(session_maker: sessionmaker) -> User:
+async def get_users_db(session_maker: sessionmaker) -> User:
     async with session_maker() as session:
         async with session.begin():
             result = await session.execute(select(User))

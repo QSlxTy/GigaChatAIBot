@@ -36,3 +36,8 @@ async def choose_style_kb():
     builder.button(text='Романтик', callback_data='choose_style:romantic')
     builder.button(text='Активная', callback_data='choose_style:active')
     return builder.as_markup()
+
+async def end_story_kb():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Создать новую историю', callback_data='go_questions')
+    return builder.as_markup()
