@@ -1,7 +1,6 @@
 import time
 
 from aiogram import types, Dispatcher, F
-from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.orm import sessionmaker
@@ -12,12 +11,12 @@ from keyboards.user.user_keyboard import agree_rules_kb, start_agree_kb, go_ques
 from utils.states.user import FSMStart
 
 
-async def start_command(message: types.Message, state: FSMContext):
+async def start_command(message: types.Message, state: FSMContext, session_maker: sessionmaker):
     await state.set_state(FSMStart.start)
     await message.delete()
     await message.answer(
-        text="<b>Привет! Я бот, который поможет тебе подвести итоги твоего года с помощью персонализированного "
-             "комикса. Впереди тебя ждет увлекательное путешествие по воспоминаниям! Начнем?</b>",
+        text='<b>Привет! Я бот, который поможет тебе подвести итоги твоего года с помощью персонализированного '
+             'комикса. Впереди тебя ждет увлекательное путешествие по воспоминаниям! Начнем?</b>',
         reply_markup=await start_agree_kb()
     )
     await state.update_data(ansers_list=[])
@@ -25,7 +24,7 @@ async def start_command(message: types.Message, state: FSMContext):
 
 async def agree_rules(call: types.CallbackQuery, state: FSMContext):
     await call.message.answer(
-        text="<b>Перед началом ознакомься с нашей офертой <code>[ссылка на оферту]</code></b>",
+        text='<b>Перед началом ознакомься с нашей офертой <code>[ссылка на оферту]</code></b>',
         reply_markup=await agree_rules_kb()
     )
 
@@ -33,12 +32,15 @@ async def agree_rules(call: types.CallbackQuery, state: FSMContext):
 async def go_questions(call: types.CallbackQuery, state: FSMContext, session_maker: sessionmaker):
     await update_user_db(call.from_user.id, {'agreed': True}, session_maker)
     await call.message.delete()
-    await call.message.answer(text='Отлично!')
+    await call.message.answer(
+        text='<b>Отлично!</b>'
+    )
     time.sleep(2)
     await call.message.answer(
         text='<b>Для создания истории я задам тебе несколько вопросов. Ответь честно и по '
              'возможности подробно — это поможет создать по-настоящему уникальную историю!</b>',
-        reply_markup=await go_questions_kb())
+        reply_markup=await go_questions_kb()
+    )
     questions = await get_random_questions(session_maker)
     await state.update_data(questions=questions)
 

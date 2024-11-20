@@ -1,7 +1,7 @@
 from typing import Callable, Dict, Any, Awaitable, Union
 from aiogram import BaseMiddleware
 from aiogram.types import Message, CallbackQuery
-from integrations.database.models.user import is_user_exists_db, create_user
+from integrations.database.models.user import is_user_exists_db, create_user_db
 
 
 class RegisterCheck(BaseMiddleware):
@@ -17,7 +17,7 @@ class RegisterCheck(BaseMiddleware):
         if data.get('session_maker'):
             session_maker = data['session_maker']
             if not await is_user_exists_db(user_id=event.from_user.id, session_maker=session_maker):
-                await create_user(user_id=event.from_user.id,
+                await create_user_db(user_id=event.from_user.id,
                                   session_maker=session_maker)
                 return await handler(event, data)
             else:

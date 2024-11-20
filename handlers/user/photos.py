@@ -1,15 +1,12 @@
 import os
-import time
 
 from aiogram import types, Dispatcher, F
 from aiogram.fsm.context import FSMContext
-from aiogram.types import FSInputFile
 from sqlalchemy.orm import sessionmaker
 
 from bot_start import bot
 from integrations.database.models.user_photos import create_photo_db
 from keyboards.user.user_keyboard import choose_style_kb
-from utils.gigachat_api import generate_main
 from utils.states.user import FSMQuestions
 
 
@@ -33,8 +30,8 @@ async def process_answer(message: types.Message, state: FSMContext, session_make
             )
             await create_photo_db(message.from_user.id, file.photo[-1].file_id, session_maker)
         await message.answer(
-            text="Отлично! Сейчас я соберу твою историю и начну рисовать твою персональную комикс-историю."
-                 "Кстати, какой стиль мне выбрать?",
+            text='<b>Отлично! Сейчас я соберу твою историю и начну рисовать твою персональную комикс-историю.'
+                 'Кстати, какой стиль мне выбрать?</b>',
             reply_markup=await choose_style_kb()
         )
     await state.update_data(path_list=path_list)
