@@ -2,11 +2,9 @@ import ast
 import json
 import os
 
-import gigachat
-
 from integrations.database.models.stories import create_stories_db
 from src.config import BotConfig
-from utils.prompts import generate_text_prompt, generate_photo_prompt
+from utils.gpt_api import gpt_api_func
 from utils.replicate_api import replicate_func
 
 REPLICATE_API_TOKEN = BotConfig.replicate_token
@@ -34,9 +32,8 @@ async def transform_input(input_string):
         raise ValueError("Ожидался список объектов JSON")
 
 
-async def gigachat_generate_text(data):
-    giga = gigachat.GigaChat(credentials=BotConfig.gigachat_key, verify_ssl_certs=False, model="GigaChat-Pro")
-    response = giga.chat(f'{generate_text_prompt} Вот входящие данные в формате JSON: {data}')
+async def generate_text(data, style):
+    response = await gpt_api_func(data, style)
     start_index = response.choices[0].message.content.find('[')
     end_index = response.choices[0].message.content.rfind(']')
     if start_index != -1 and end_index != -1:
@@ -44,9 +41,8 @@ async def gigachat_generate_text(data):
     return ast.literal_eval(response), response.usage.total_tokens
 
 
-async def gigachat_generate_prompt(data):
-    giga = gigachat.GigaChat(credentials=BotConfig.gigachat_key, verify_ssl_certs=False, model="GigaChat-Pro")
-    response = giga.chat(f'{generate_photo_prompt} Вот входящие данные в формате list: {data}')
+async def generate_prompt(data, style):
+    response = await gpt_api_func(data, style)
     print('Ответ генерации визуализации API -', response.choices[0].message.content)
     start_index = response.choices[0].message.content.find('[')
     end_index = response.choices[0].message.content.rfind(']')
@@ -69,10 +65,10 @@ async def replicate_generate_photo(data_list, user_id, path_list):
 
 
 async def generate_main(text, path_list, user_id, style, session_maker):
-    text_response, total_tokens = await gigachat_generate_text(text)
+    text_response, total_tokens = await generate_text(text, style)
     print(text_response)
     await create_stories_db(user_id, text_response, int(total_tokens), session_maker)
-    prompt_response_list, total_tokens = await gigachat_generate_prompt(text_response)
+    prompt_response_list, total_tokens = await generate_prompt(text_response, style)
     print(prompt_response_list)
     photo_path_list = await replicate_generate_photo(prompt_response_list, user_id, path_list)
     print(photo_path_list)

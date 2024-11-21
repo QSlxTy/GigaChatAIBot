@@ -1,5 +1,7 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from integrations.database.models.generation_style import get_all_style_db
+
 
 async def back_menu_kb():
     builder = InlineKeyboardBuilder()
@@ -31,11 +33,13 @@ async def skip_photo_kb():
     return builder.as_markup()
 
 
-async def choose_style_kb():
+async def choose_style_kb(session_maker):
+    styles = await get_all_style_db(session_maker)
     builder = InlineKeyboardBuilder()
-    builder.button(text='Романтик', callback_data='choose_style:romantic')
-    builder.button(text='Активная', callback_data='choose_style:active')
+    for style in styles:
+        builder.button(text=style.text, callback_data=f'choose_style:{style.style}:{style.text}')
     return builder.as_markup()
+
 
 async def end_story_kb():
     builder = InlineKeyboardBuilder()

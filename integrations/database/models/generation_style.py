@@ -16,3 +16,10 @@ async def get_style_db(style: int, session_maker: sessionmaker) -> GenerationSty
         async with session.begin():
             result = await session.execute(select(GenerationStyle).where(GenerationStyle.style == style))
             return result.scalars().one().text
+
+
+async def get_all_style_db(session_maker: sessionmaker) -> [GenerationStyle]:
+    async with session_maker() as session:
+        async with session.begin():
+            result = await session.execute(select(GenerationStyle))
+            return result.scalars().all()

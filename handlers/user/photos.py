@@ -21,7 +21,6 @@ async def process_answer(message: types.Message, state: FSMContext, session_make
         await create_photo_db(message.from_user.id, message.photo[-1].file_id, session_maker)
     else:
         path_list = []
-        print(message.album)
         for file in message.album:
             path_list.append(f'files/{message.from_user.id}/{file.photo[-1].file_id}.jpg')
             await file.delete()
@@ -32,7 +31,7 @@ async def process_answer(message: types.Message, state: FSMContext, session_make
         await message.answer(
             text='<b>Отлично! Сейчас я соберу твою историю и начну рисовать твою персональную комикс-историю.'
                  'Кстати, какой стиль мне выбрать?</b>',
-            reply_markup=await choose_style_kb()
+            reply_markup=await choose_style_kb(session_maker)
         )
     await state.update_data(path_list=path_list)
 

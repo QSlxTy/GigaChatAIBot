@@ -5,11 +5,11 @@ from sqlalchemy.orm import sessionmaker
 from keyboards.user.user_keyboard import choose_style_kb
 
 
-async def start_skip_photo(call: types.CallbackQuery):
+async def start_skip_photo(call: types.CallbackQuery, session_maker: sessionmaker):
     await call.message.answer(
         text='<b>Отлично! Сейчас я соберу твою историю и начну рисовать твою персональную комикс-историю.\n'
              'Кстати, а в каком стиле мне ее сделать?</b>',
-        reply_markup=await choose_style_kb()
+        reply_markup=await choose_style_kb(session_maker)
     )
 
 
