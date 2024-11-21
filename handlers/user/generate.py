@@ -20,9 +20,8 @@ async def start_generate(call: types.CallbackQuery, state: FSMContext, session_m
         path_list = data['path_list']
     else:
         path_list = []
-    style_text = await get_style_db(int(call.data.split(':')[1]), session_maker)
     file_path_list, list_text = await generate_main(
-        data['answers_list'], path_list, call.from_user.id, style_text, session_maker)
+        data['answers_list'], path_list, call.from_user.id, call.data.split(':')[2], session_maker)
     await bot.send_message(
         chat_id=call.from_user.id,
         text='<b>Вот твоя персонализированная история!\n'
