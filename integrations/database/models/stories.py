@@ -22,8 +22,8 @@ async def create_stories_db(telegram_id: int, story_text: str, token_used: int, 
         async with session.begin():
             story = Stories(
                 telegram_id=telegram_id,
-                story_text=story_text,
-                token_used=token_used,
+                story_text=str(story_text),
+                token_used=int(token_used),
                 created_at=datetime.now()
             )
             try:

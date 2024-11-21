@@ -37,7 +37,8 @@ async def choose_style_kb(session_maker):
     styles = await get_all_style_db(session_maker)
     builder = InlineKeyboardBuilder()
     for style in styles:
-        builder.button(text=style.text, callback_data=f'choose_style:{style.style}:{style.text}')
+        builder.button(text=style.style, callback_data=f'choose_style:{style.text}:{style.style}')
+    builder.adjust(1)
     return builder.as_markup()
 
 
