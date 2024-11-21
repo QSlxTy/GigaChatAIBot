@@ -1,8 +1,6 @@
-import base64
-import os
-
 import replicate
 
+from bot_start import logger
 from src.config import BotConfig
 
 
@@ -25,23 +23,28 @@ async def replicate_func(prompt, user_id, path_list):
                            "bad hands, error, text",
         "style_strength_ratio": 20
     }
-
     if len(input_images) == 1:
-        input_data["input_image"] = input_images[0]
+        input_data["input_image"] = str(input_images[0])
     elif len(input_images) == 2:
-        input_data["input_image"] = input_images[0]
+        input_data["input_image"] = str(input_images[0])
         input_data["input_image2"] = input_images[1]
     elif len(input_images) == 3:
-        input_data["input_image"] = input_images[0]
+        input_data["input_image"] = str(input_images[0])
         input_data["input_image2"] = input_images[1]
         input_data["input_image3"] = input_images[2]
     elif len(input_images) == 4:
-        input_data["input_image"] = input_images[0]
+        input_data["input_image"] = str(input_images[0])
         input_data["input_image2"] = input_images[1]
         input_data["input_image3"] = input_images[2]
         input_data["input_image4"] = input_images[3]
-    input_data["prompt"] = "A person img " + prompt + " art by Pixar"
-    print(input_data)
+    elif len(input_images) == 0:
+        input_data["input_image"] = 'https://i.pinimg.com/originals/97/fa/c7/97fac74a8906f323d51ec30681ce281a.jpg'
+
+    logger.info(prompt)
+    logger.info(input_data)
+    if 'img' not in prompt:
+        prompt = 'A person img' + prompt[1:]
+    input_data["prompt"] = prompt
     output = await replicate.async_run(
         BotConfig.replicate_model,
         input=input_data
