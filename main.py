@@ -19,7 +19,7 @@ async def start_bot():
     dp.message.middleware(DatabaseMiddleware())
     dp.message.middleware(RegisterCheck())
     dp.callback_query.middleware(RegisterCheck())
-    dp.message.middleware(AlbumMiddleware())
+    # dp.message.middleware(AlbumMiddleware())
     await register_handlers(dp)
     ''' INITIALIZE DATABASE MODELS and CREATE SESSION '''
     await init_models(connection)
