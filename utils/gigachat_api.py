@@ -57,7 +57,6 @@ async def replicate_generate_photo(data_list, user_id, path_list):
         for index_output, item in enumerate(output):
             with open(f"files/{user_id}_generated/output_{index}.png", "wb") as file:
                 file.write(item.read())
-                file.close()
         output_list.append(f"files/{user_id}_generated/output_{index}.png")
     return output_list
 
