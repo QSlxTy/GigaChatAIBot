@@ -15,8 +15,8 @@ async def start_command(message: types.Message, state: FSMContext, session_maker
     await state.set_state(FSMStart.start)
     await message.delete()
     await message.answer(
-        text='<b>Привет! Я бот, который поможет тебе подвести итоги твоего года с помощью персонализированного '
-             'комикса. Впереди тебя ждет увлекательное путешествие по воспоминаниям! Начнем?</b>',
+        text='Привет! Я бот, который поможет тебе подвести итоги твоего года с помощью персонализированного '
+             'комикса. Впереди тебя ждет увлекательное путешествие по воспоминаниям! Начнем?',
         reply_markup=await start_agree_kb()
     )
     await state.update_data(ansers_list=[])
@@ -26,19 +26,19 @@ async def agree_rules(call: types.CallbackQuery, state: FSMContext, session_make
     user_info = await get_user_db({'telegram_id': call.from_user.id}, session_maker)
     if user_info.agreed is True:
         await call.message.answer(
-            text='<b>Отлично!</b>'
+            text='Отлично!'
         )
         time.sleep(2)
         await call.message.answer(
-            text='<b>Для создания истории я задам тебе несколько вопросов. Ответь честно и по '
-                 'возможности подробно — это поможет создать по-настоящему уникальную историю!</b>',
+            text='Для создания истории я задам тебе несколько вопросов. Ответь честно и по '
+                 'возможности подробно — это поможет создать по-настоящему уникальную историю!',
             reply_markup=await go_questions_kb()
         )
         questions = await get_random_questions(session_maker)
         await state.update_data(questions=questions)
     else:
         await call.message.answer(
-            text='<b>Перед началом ознакомься с нашей офертой <code>[ссылка на оферту]</code></b>',
+            text='Перед началом ознакомься с нашей офертой <code>[ссылка на оферту]</code>',
             reply_markup=await agree_rules_kb()
         )
 
@@ -46,12 +46,12 @@ async def agree_rules(call: types.CallbackQuery, state: FSMContext, session_make
 async def go_questions(call: types.CallbackQuery, state: FSMContext, session_maker: sessionmaker):
     await update_user_db(call.from_user.id, {'agreed': True}, session_maker)
     await call.message.answer(
-        text='<b>Отлично!</b>'
+        text='Отлично!'
     )
     time.sleep(2)
     await call.message.answer(
-        text='<b>Для создания истории я задам тебе несколько вопросов. Ответь честно и по '
-             'возможности подробно — это поможет создать по-настоящему уникальную историю!</b>',
+        text='Для создания истории я задам тебе несколько вопросов. Ответь честно и по '
+             'возможности подробно — это поможет создать по-настоящему уникальную историю!',
         reply_markup=await go_questions_kb()
     )
     questions = await get_random_questions(session_maker)
