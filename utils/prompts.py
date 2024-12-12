@@ -34,33 +34,38 @@ generate_text_prompt = (
 
 generate_photo_prompt = (
     """Я передал тебе значения в формате:
-    ["История 1","История 2","История 3","История 4","История 5"].
-    Общий настрой повествования: STYLE.
-    Пол персонажа: SEX.
+     ["История 1","История 2","История 3","История 4","История 5"].
+      Общий настрой повествования: STYLE. Пол персонажа: SEX. 
 
-    Твоя задача — написать визуализацию для каждой истории. Это визуализация ключевых моментов уходящего 2024 года. 
+    Твоя задача — написать визуализацию для каждой истории в стиле комикса, как если бы это было селфи. 
+    Это визуализация ключевых моментов уходящего 2024 года. 
     Ты должен описать героя или ключевую сцену каждой истории так, чтобы она передавала эмоции, действия и атмосферу, 
-    соответствующие общему настрою.
-
+    соответствующие общему настрою. 
+    Используй яркие, насыщенные цвета и четкие линии, характерные для стиля комикса, при этом создавая эффект селфи.
+    
     Все визуализации должны быть согласованы между собой по стилю и содержанию, чтобы передавать ощущение целостности. 
     Например, если все истории связаны одним героем, он должен быть описан одинаково, а сцены должны соответствовать 
-    логике развития событий. Всего должно быть 5 визуализаций
-
-    Используй до 25 слов для описания, пиши строго на английском языке. Начни с A photo of (man/woman) img, who is ... 
+    логике развития событий. Всего должно быть 5 визуализаций.
+    Не используй в промпте и не пиши про части тела человека, такие как грудь, попа и тд.
+    Используй до 25 слов для описания, пиши строго на английском языке. 
+    Начни с A selfie-style comic illustration of (man/woman) img, who is ... 
     Учитывай пол персонажа при генерации. 
-    Убедись, что визуализация соответствует описанным событиям и героям, включая настроение истории. 
-    Описания дожны быть яркими, сочными, согласованными между собой. Добавь детали, описания, как будто это фотография отражающая историю 
+    Убедись, что визуализация соответствует описанным событиям и героям, включая настроение истории.
+    Описания должны быть яркими, сочными, согласованными между собой. 
+    Добавь детали, описания, как будто это изображение в комиксной истории отражает момент в развитии событий, сделанное в стиле селфи.
     Ответ ты должен выдать в формате списка, где каждая визуализация на отдельном месте. 
-    Порядок визаулизаций должен соответствовать порядку историй. 
-
+    Порядок визуализаций должен соответствовать порядку историй. 
+    
     Пример вывода:
-    ["A photo of (man/woman) img, who is young hero on a snowy mountain, determined", 
-     "A photo of (man/woman) img, who is glowing sunrise over a bustling city, hopeful", 
-     "A photo of (man/woman) img, who is mysterious figure in a dark forest, suspenseful", 
-     "A photo of (man/woman) img, who is vibrant festival with colorful lights, joyful", 
-     "A photo of (man/woman) img, who is peaceful beach at sunset, serene"]
-
+    [
+        "A selfie-style comic illustration of a (man/woman) in a snowstorm, eyes determined, her red scarf fluttering, background of icy mountains and cloudy sky, full of resolve",
+        "A selfie-style comic illustration of a (man/woman) at sunrise in a bustling city, with warm golden light reflecting off buildings, an optimistic expression as he watches the skyline",
+        "A selfie-style comic illustration of a mysterious (man/woman) in a dark, foggy forest, intense gaze, shadowy trees behind her, the air thick with tension, surrounded by mist",
+        "A selfie-style comic illustration of a cheerful (man/woman) in a vibrant festival, colorful lights and confetti flying around, excitement in the air, people dancing in the background",
+        "A selfie-style comic illustration of a (man/woman) on a peaceful beach at sunset, serene expression, warm golden light reflecting off calm waves, horizon stretching into tranquility"
+    ]
+    
+    
     Ты должен отвечать только по этому шаблону, строго следуя структуре, без дополнительных форматов или символов. 
     Дай ответ в формате list python, используй двойные кавычки(") для обозначения элементов списка, а не одинарные(')
-    """
-)
+    """)
