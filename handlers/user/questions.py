@@ -1,10 +1,11 @@
 from aiogram import types, F, Dispatcher
 from aiogram.fsm.context import FSMContext
+from aiogram.types import FSInputFile
 from sqlalchemy.orm import sessionmaker
 
 from bot_start import bot
 from integrations.database.models.user_answers import create_answer_db
-from keyboards.user.user_keyboard import skip_photo_kb
+from src.config import BotConfig
 from utils.states.user import FSMQuestions
 
 
@@ -27,11 +28,12 @@ async def ask_question(chat_id: int, question_index: int, state):
         await state.update_data(question_index=question_index,
                                 chat_id=chat_id)
     else:
-        await bot.send_message(
+        await bot.send_photo(
             chat_id=chat_id,
-            text='Теперь ты можешь загрузить до четырех своих фотографий,\n'
-                 'чтобы сделать комикс еще более персонализированным.\n'
-                 'Загрузи одно или несколько фото, которые мне помогут создать образы для твоей истории'
+            photo=FSInputFile(BotConfig.get_photo_path),
+            caption='Теперь ты можешь загрузить до четырех своих фотографий,\n'
+                    'чтобы сделать комикс еще более персонализированным.\n'
+                    'Загрузи одно или несколько фото, которые мне помогут создать образы для твоей истории'
         )
         await state.set_state(FSMQuestions.wait_photo)
 

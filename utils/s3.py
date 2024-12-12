@@ -1,55 +1,82 @@
+import os
+from uuid import uuid4
+
 import aioboto3
 
 from bot_start import logger
 from src.config import BotConfig
 
 
-class S3Cloud:
-    _instance = None
-    _logger = logger
+async def upload_photo_to_yandex_s3(
+        bot, file_id: str, folder: str = "photos"
+) -> str:
+    """
+    Асинхронно загружает фотографию из Telegram на Yandex S3 и возвращает публичный URL.
+    :param bot: Экземпляр бота.
+    :param file_id: Идентификатор файла в Telegram.
+    :param folder: Папка в бакете S3 для хранения фото.
+    :return: Публичный URL загруженной фотографии на Yandex S3.
+    """
+    try:
+        # Получаем объект файла из Telegram
+        file = await bot.get_file(file_id)
+        file_path = file.file_path
+        file_bytes = await bot.download_file(file_path)
 
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(S3Cloud, cls).__new__(cls)
-        return cls._instance
+        # Генерируем уникальное имя для файла
+        file_extension = os.path.splitext(file_path)[1]
+        unique_filename = f"{folder}/{uuid4()}{file_extension}"
 
-    async def upload_file_bucket(self, path, name):
-        async with aioboto3.Session().client(
-                service_name='s3',
-                endpoint_url='https://storage.yandexcloud.net',
+        # Создаём сессию aioboto3
+        session = aioboto3.Session()
+
+        async with session.resource(
+                "s3",
+                endpoint_url='https://storage.yandexcloud.net/',
                 aws_access_key_id=BotConfig.yandex_access_key,
                 aws_secret_access_key=BotConfig.yandex_secret_key,
-                region_name=BotConfig.yandex_region
-        ) as s3:
-            await s3.upload_file(path, BotConfig.yandex_bucket_name, name)
+                region_name=BotConfig.yandex_region,
+        ) as s3_resource:
+            obj = await s3_resource.Object(BotConfig.yandex_bucket_name, unique_filename)
+            await obj.put(
+                Body=file_bytes,
+                ContentType=f"image/{file_extension.lstrip('.')}",
+                ACL="public-read",
+            )
 
-    async def url_file_bucket(self, name):
-        async with aioboto3.Session().client(
-                service_name='s3',
-                endpoint_url='https://storage.yandexcloud.net',
+        # Формируем URL
+        s3_url = f"https://storage.yandexcloud.net/{BotConfig.yandex_bucket_name}/{unique_filename}"
+
+        return s3_url
+
+    except Exception as e:
+        logger.error(f"Неизвестная ошибка при загрузке файла на Yandex S3: {e}")
+        raise
+
+
+async def delete_photo_from_yandex_s3(file_path: str) -> bool:
+    """
+    Асинхронно удаляет фотографию из Yandex S3.
+    :param file_path: Путь к файлу в бакете S3.
+    :return: True, если файл успешно удален, иначе False.
+    """
+    try:
+        # Создаём сессию aioboto3
+        session = aioboto3.Session()
+
+        async with session.resource(
+                "s3",
+                endpoint_url='https://storage.yandexcloud.net/',
                 aws_access_key_id=BotConfig.yandex_access_key,
                 aws_secret_access_key=BotConfig.yandex_secret_key,
-                region_name=BotConfig.yandex_region
-        ) as s3:
-            url = await s3.generate_presigned_url('get_object',
-                                                  Params={'Bucket': BotConfig.yandex_bucket_name, 'Key': name},
-                                                  ExpiresIn=172800)
-            return url
+                region_name=BotConfig.yandex_region,
+        ) as s3_resource:
+            obj = await s3_resource.Object(BotConfig.yandex_bucket_name, file_path)
+            await obj.delete()
 
-    async def delete_file_bucket(self, name):
-        async with aioboto3.Session().client(
-                service_name='s3',
-                endpoint_url='https://storage.yandexcloud.net',
-                aws_access_key_id=BotConfig.yandex_access_key,
-                aws_secret_access_key=BotConfig.yandex_secret_key,
-                region_name=BotConfig.yandex_region
-        ) as s3:
-            await s3.delete_object(Bucket=BotConfig.yandex_bucket_name, Key=name)
+        logger.info(f"Файл {file_path} успешно удален из Yandex S3.")
+        return True
 
-    async def start_bucket(self, path, name):
-        await self.upload_file_bucket(path, name)
-        url = await self.url_file_bucket(name)
-        return url, name
-
-
-s3 = S3Cloud()
+    except Exception as e:
+        logger.error(f"Ошибка при удалении файла {file_path} из Yandex S3: {e}")
+        return False

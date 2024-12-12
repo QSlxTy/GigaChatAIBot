@@ -1,5 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 
+from bot_start import logger
+
 
 async def photo_maker_func(text_list, photo_list, user_id):
     max_width = 1755
@@ -8,8 +10,8 @@ async def photo_maker_func(text_list, photo_list, user_id):
     end_text = 3520
     end_photo_list = []
     for index, text in enumerate(text_list):
-        font = ImageFont.truetype('/root/bot_gigachat/new_font.ttf', font_size)
-        image = Image.open('/root/bot_gigachat/background_photo.png')
+        font = ImageFont.truetype('new_font.ttf', font_size)
+        image = Image.open('background_photo.png')
         draw = ImageDraw.Draw(image)
         words = text.split()
         lines = []
@@ -69,7 +71,8 @@ async def photo_maker_func(text_list, photo_list, user_id):
             image.convert('RGB').save(jpeg_path, 'JPEG', quality=85)  # Установите желаемое качество
             end_photo_list.append(jpeg_path)
             image.close()
-        except Exception:
+        except Exception as _ex:
+            logger.error(f'Photomaker error --> {_ex}')
             image.close()
 
     return end_photo_list
