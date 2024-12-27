@@ -1,17 +1,20 @@
+import os
+import shutil
+
 from PIL import Image, ImageDraw, ImageFont
 
 from bot_start import logger
 
-
 async def photo_maker_func(text_list, photo_list, user_id):
     max_width = 1755
-    font_size = 72
+    font_size = 85
     text_position = (220, 2115)
     end_text = 3520
     end_photo_list = []
+    shutil.copy('/root/bot_giga/background_photo.png', f'/root/bot_giga/files/{user_id}_generated/background_photo.png')
     for index, text in enumerate(text_list):
-        font = ImageFont.truetype('new_font.ttf', font_size)
-        image = Image.open('background_photo.png')
+        font = ImageFont.truetype('/root/bot_giga/new_font.ttf', font_size)
+        image = Image.open(f'/root/bot_giga/files/{user_id}_generated/background_photo.png')
         draw = ImageDraw.Draw(image)
         words = text.split()
         lines = []
@@ -33,18 +36,19 @@ async def photo_maker_func(text_list, photo_list, user_id):
         y = text_position[1]
         total_text_height = 0
 
-        for line in lines:
-            bbox = draw.textbbox((text_position[0], y), line, font=font)
-            text_height = bbox[3] - bbox[1]
-            total_text_height += text_height + line_spacing
+        # Сначала вычисляем общую высоту текста
+        text_height = 80
+        total_text_height += text_height + line_spacing
 
+        # Проверяем, помещается ли текст в заданной области
         if total_text_height > (end_text - text_position[1]):
+            # Если текст не помещается, можно обрезать его или обрабатывать по-другому
             lines = lines[:(end_text - text_position[1]) // (font_size + line_spacing)]
 
+        # Рисуем текст
         y = text_position[1]
         for line in lines:
-            bbox = draw.textbbox((text_position[0], y), line, font=font)
-            text_height = bbox[3] - bbox[1]
+            text_height = 80
             draw.text((text_position[0], y), line, font=font, fill=(173, 216, 230))
             y += text_height + line_spacing
         try:
@@ -71,6 +75,7 @@ async def photo_maker_func(text_list, photo_list, user_id):
             image.convert('RGB').save(jpeg_path, 'JPEG', quality=85)  # Установите желаемое качество
             end_photo_list.append(jpeg_path)
             image.close()
+            os.remove(f'/root/bot_giga/files/{user_id}_generated/background_photo.png')
         except Exception as _ex:
             logger.error(f'Photomaker error --> {_ex}')
             image.close()

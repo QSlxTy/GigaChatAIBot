@@ -10,7 +10,7 @@ from src.config import conf
 from utils.middlewares.album_md import AlbumMiddleware
 from utils.middlewares.database_md import DatabaseMiddleware
 from utils.middlewares.register_check_md import RegisterCheck
-
+from utils.middlewares.throttling import RateLimitMiddleware
 
 
 async def start_bot():
@@ -19,6 +19,8 @@ async def start_bot():
     dp.message.middleware(DatabaseMiddleware())
     dp.message.middleware(RegisterCheck())
     dp.callback_query.middleware(RegisterCheck())
+    dp.message.middleware(RateLimitMiddleware())
+    dp.callback_query.middleware(RateLimitMiddleware())
     # dp.message.middleware(AlbumMiddleware())
     await register_handlers(dp)
     ''' INITIALIZE DATABASE MODELS and CREATE SESSION '''
