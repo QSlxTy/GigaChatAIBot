@@ -3,19 +3,13 @@ import json
 import time
 
 import aiohttp
-import requests
+
 
 from bot_start import logger
+from src.config import BotConfig
 
 
 async def go_api_func_image(photo_url_list, prompt):
-    # url, name = await s3.start_bucket(f'C:/Users/MSI/Desktop/GigaChatAIBot/files/1137048397_generated/1.jpg',
-    #                                   f'test')
-    # print(url)
-    # url =await transform_url(url, name)
-    # print(url)
-    # photo_url_list.append(url)
-
     logger.info(f"Photo url list -> {photo_url_list}")
     if len(photo_url_list) == 1:
         photo_url = f'--cref {photo_url_list[0]}'
@@ -47,7 +41,7 @@ async def go_api_func_image(photo_url_list, prompt):
         }
     })
     headers = {
-        'x-api-key': '08f5a135085756176fbc89ecb97a348242fac376fcfa4e15c6fbd51fd8f2b6b5',
+        'x-api-key': BotConfig.go_api_key,
         'Content-Type': 'application/json'
     }
     while True:
@@ -93,7 +87,7 @@ async def go_api_func_upscale(session,task_id):
         }
     })
     headers = {
-        'x-api-key': '08f5a135085756176fbc89ecb97a348242fac376fcfa4e15c6fbd51fd8f2b6b5',
+        'x-api-key': BotConfig.go_api_key,
         'Content-Type': 'application/json'
     }
     while True:
