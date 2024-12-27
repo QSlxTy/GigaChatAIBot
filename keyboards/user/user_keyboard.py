@@ -46,3 +46,11 @@ async def end_story_kb():
     builder = InlineKeyboardBuilder()
     builder.button(text='Создать новую историю', callback_data='go_questions')
     return builder.as_markup()
+
+
+async def choose_sex_kb():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Мужской', callback_data='choose_sex:man')
+    builder.button(text='Женский', callback_data='choose_sex:woman')
+    builder.adjust(1)
+    return builder.as_markup()
