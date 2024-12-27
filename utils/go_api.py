@@ -63,7 +63,7 @@ async def go_api_func_image(photo_url_list, prompt):
                     logger.info(f"Image Status: {json_data['data']['status']} --> {json_data['data']['task_id']}")
                     if json_data['data']['status'] == 'pending' or json_data['data']['status'] == 'processing':
                         logger.info(f"Image Waiting: {json_data['data']['status']} --> {json_data['data']['task_id']}")
-                        time.sleep(5)
+                        await asyncio.sleep(5)
                         continue
                     elif json_data['data']['status'] == 'completed':
                         logger.info(f"Image Completed: {json_data['data']['status']} --> {json_data['data']['task_id']}")

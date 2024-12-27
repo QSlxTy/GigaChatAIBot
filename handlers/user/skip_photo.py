@@ -15,7 +15,7 @@ async def start_skip_photo(call: types.CallbackQuery, session_maker: sessionmake
 
 async def choose_sex(call: types.CallbackQuery, state: FSMContext):
     await call.message.answer(
-        text='Хорошо. Для полноты картины укажи свой пол, чтобы полностью кастомизировать историю',
+        text='Хорошо. Остался последний штрих. Укажите свой пол, чтобы полностью кастомизировать историю.',
         reply_markup=await choose_sex_kb()
     )
     await state.update_data(style=call.data.split(':')[2])

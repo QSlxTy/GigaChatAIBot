@@ -18,19 +18,18 @@ async def start_generate(call: types.CallbackQuery, state: FSMContext, session_m
     data = await state.get_data()
     await call.message.answer_photo(
         photo=FSInputFile(BotConfig.start_generation_photo_path),
-        caption='<code>Отлично</code>, начал генерацию истории ⌛️\n'
-                'Обычно, это занимает до <code>15 минут</code>, мы пришлем результат в чат!'
+        caption='<code>Отлично</code>, начал генерацию истории ⌛️\n\n'
+                'Это может занять до <code>15 минут</code>, но обычно я справляюсь быстрее. Пришлю результат в чат'
     )
     if data.get('path_list'):
         path_list = data['path_list']
     else:
         path_list = []
-
     try:
         file_path_list = await generate_main(
-            data['answers_list'], path_list, data['url_list'], call.from_user.id, data['style'],
-            call.data.split(':')[1],
-            session_maker)
+            data['answers_list'], path_list, data['url_list'], call.from_user.id, data['style'], call.data.split(':')[1],
+            session_maker
+        )
     except Exception as _ex:
         logger.error(f'Generation error {call.from_user.id} --> {_ex}')
         await bot.send_message(
@@ -45,8 +44,7 @@ async def start_generate(call: types.CallbackQuery, state: FSMContext, session_m
         await state.update_data(questions=questions)
         return
     await call.message.answer(
-        text='Вот твоя персонализированная история!\n'
-             'Приятного просмотра и воспоминаний 😊'
+        text='Вот ваша личная история! Приятного просмотра и воспоминаний 😊'
     )
 
     time.sleep(2)
@@ -55,12 +53,12 @@ async def start_generate(call: types.CallbackQuery, state: FSMContext, session_m
         media=[
             InputMediaPhoto(type='photo', media=FSInputFile(file_path_list[0])),
             InputMediaPhoto(type='photo', media=FSInputFile(file_path_list[1])),
+            InputMediaPhoto(type='photo', media=FSInputFile(file_path_list[2])),
             InputMediaPhoto(type='photo', media=FSInputFile(file_path_list[3])),
-            InputMediaPhoto(type='photo', media=FSInputFile(file_path_list[4])),
-            InputMediaPhoto(type='photo', media=FSInputFile(file_path_list[5]))
+            InputMediaPhoto(type='photo', media=FSInputFile(file_path_list[4]))
         ]
     )
-    for url in data['url_list']:
+    for url in file_path_list:
         await delete_photo_from_yandex_s3(url.split('https://storage.yandexcloud.net/chatbotgigacht')[-1][1:])
     for path in os.listdir(f'files/{call.from_user.id}/'):
         os.remove(f'files/{call.from_user.id}/{path}')
@@ -70,9 +68,9 @@ async def start_generate(call: types.CallbackQuery, state: FSMContext, session_m
     #     await s3.delete_file_bucket(name)
     await bot.send_message(
         chat_id=call.from_user.id,
-        text='Спасибо, что подводил итоги года с помощью нашего бота! 🤖\n'
-             'Хочешь попробовать еще раз и создать новую историю?\n'
-             '<code>Воспоминания</code> – это всегда интересно!',
+        text='Спасибо, что подвели итоги года с помощью нашего бота!\n'
+             'Хотите попробовать ещё раз и создать новую яркую историю?\n'
+             'Ваши воспоминания — наше вдохновение',
         reply_markup=await end_story_kb()
     )
     await state.clear()

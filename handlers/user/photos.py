@@ -11,7 +11,7 @@ from sqlalchemy.orm import sessionmaker
 from bot_start import bot
 from keyboards.user.user_keyboard import choose_style_kb
 from src.config import BotConfig
-from utils.s3 import upload_photo_to_yandex_s3, delete_photo_from_yandex_s3
+from utils.s3 import upload_photo_to_yandex_s3
 from utils.states.user import FSMQuestions
 
 
@@ -42,15 +42,13 @@ async def process_answer(messages: List[types.Message], state: FSMContext, sessi
         path_list.append(f'files/{messages[0].from_user.id}/{file.photo[-1].file_id}{date}.jpg')
 
     await messages[0].answer(
-        text='Отлично! Сейчас я соберу твою историю и начну рисовать твою персональную комикс-историю.'
-             'Кстати, какой стиль мне выбрать?',
+        text='Отлично! Сейчас я соберу все важные вехи этого года и начну рисовать вашу персональную комикс-историю. Кстати, какой стиль мне выбрать?',
         reply_markup=await choose_style_kb(session_maker)
     )
     await state.update_data(path_list=path_list, url_list=url_list)
 
 
 async def process_one_photo(message: types.Message, state: FSMContext, session_maker: sessionmaker):
-    print(message)
     await message.answer_photo(
         photo=FSInputFile(BotConfig.download_photo_path),
         caption="Сохраняю фото..."
@@ -68,8 +66,7 @@ async def process_one_photo(message: types.Message, state: FSMContext, session_m
     url_list = [url]
 
     await message.answer(
-        text='Отлично! Сейчас я соберу твою историю и начну рисовать твою персональную комикс-историю.'
-             'Кстати, какой стиль мне выбрать?',
+        text='Отлично! Сейчас я соберу все важные вехи этого года и начну рисовать вашу персональную комикс-историю. Кстати, какой стиль мне выбрать?',
         reply_markup=await choose_style_kb(session_maker)
     )
     await state.update_data(path_list=path_list, url_list=url_list, name_list=name_list)
