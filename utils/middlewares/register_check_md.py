@@ -18,7 +18,7 @@ class RegisterCheck(BaseMiddleware):
             session_maker = data['session_maker']
             if not await is_user_exists_db(user_id=event.from_user.id, session_maker=session_maker):
                 await create_user_db(user_id=event.from_user.id,
-                                  session_maker=session_maker)
+                                     session_maker=session_maker)
                 return await handler(event, data)
             else:
                 return await handler(event, data)

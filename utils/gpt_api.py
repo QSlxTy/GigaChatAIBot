@@ -5,7 +5,7 @@ from src.config import BotConfig
 from utils.prompts import generate_text_prompt, generate_photo_prompt
 
 
-async def gpt_api_func_text(prompt, style):
+async def gpt_api_func_text(prompt, style, sex):
     async with aiohttp.ClientSession() as session:
         async with session.post(
                 "https://api.openai.com/v1/chat/completions",
@@ -13,9 +13,10 @@ async def gpt_api_func_text(prompt, style):
                 json={
                     "model": "gpt-4o-mini",
                     "messages": [
-                        {"role": "user", "content": f'{generate_text_prompt.replace("STYLE", style)}: {prompt}'},
+                        {"role": "user",
+                         "content": f'{generate_text_prompt.replace("STYLE", style).replace("SEX", sex)}: {prompt}'},
                     ],
-                    "temperature": 0
+                    "temperature": 0.5
                 }
         ) as response:
             print(await response.text())
@@ -23,7 +24,7 @@ async def gpt_api_func_text(prompt, style):
             return response['choices'][0]['message']['content'], response['usage']['total_tokens']
 
 
-async def gpt_api_func_prompt(prompt, style):
+async def gpt_api_func_prompt(prompt, style,sex):
     async with aiohttp.ClientSession() as session:
         async with session.post(
                 "https://api.openai.com/v1/chat/completions",
@@ -31,9 +32,10 @@ async def gpt_api_func_prompt(prompt, style):
                 json={
                     "model": "gpt-4o-mini",
                     "messages": [
-                        {"role": "user", "content": f'{generate_photo_prompt.replace("STYLE", style)}: {prompt}'},
+                        {"role": "user",
+                         "content": f'{generate_photo_prompt.replace("STYLE", style).replace("SEX", sex)}: {prompt}'},
                     ],
-                    "temperature": 0
+                    "temperature": 0.5
                 }
         ) as response:
             print(await response.text())

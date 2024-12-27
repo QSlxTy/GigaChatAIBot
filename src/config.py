@@ -39,7 +39,15 @@ class BotConfig:
     yandex_bucket_name: str = getenv('YANDEX_BUCKET')
     replicate_token: str = getenv('REPLICATE_API_KEY')
     replicate_model: str = getenv('REPLICATE_MODEL')
+    base_img: str = getenv('BASE_IMG')
     gpt_token: str = getenv('GPT_API_KEY')
+    font_path: str = getenv('FONT_PATH')
+    background_path: str = getenv('BACKGROUND_PATH')
+    start_photo_path: str = getenv('START_PHOTO_PATH')
+    start_generation_photo_path: str = getenv('START_GENERATION_PHOTO_PATH')
+    download_photo_path: str = getenv('DOWNLOAD_PHOTO_PATH')
+    get_photo_path: str = getenv('GET_PHOTO_PATH')
+    go_api_key: str = getenv('GO_API_KEY')
 
 
 @dataclass

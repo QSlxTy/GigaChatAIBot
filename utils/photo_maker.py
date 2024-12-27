@@ -1,49 +1,83 @@
-import asyncio
 import os
+import shutil
 
-import aiofiles
 from PIL import Image, ImageDraw, ImageFont
 
+from bot_start import logger
 
-async def photo_maker_func(photo_path, text_list, user_id):
-    os.chdir('C:/Users/MSI/Desktop/GigaChatAIBot')
-    for index, path in enumerate(photo_path):
-        background = Image.open('background_photo.png')
-        background = background.resize((2160, 3840))
+async def photo_maker_func(text_list, photo_list, user_id):
+    max_width = 1755
+    font_size = 85
+    text_position = (220, 2115)
+    end_text = 3520
+    end_photo_list = []
+    shutil.copy('/root/bot_giga/background_photo.png', f'/root/bot_giga/files/{user_id}_generated/background_photo.png')
+    for index, text in enumerate(text_list):
+        font = ImageFont.truetype('/root/bot_giga/new_font.ttf', font_size)
+        image = Image.open(f'/root/bot_giga/files/{user_id}_generated/background_photo.png')
+        draw = ImageDraw.Draw(image)
+        words = text.split()
+        lines = []
+        current_line = ""
+        for word in words:
+            test_line = f"{current_line} {word}".strip()
+            bbox = draw.textbbox(text_position, test_line, font=font)
+            if bbox[2] - bbox[0] <= max_width:
+                current_line = test_line
+            else:
+                if current_line:
+                    lines.append(current_line)
+                current_line = word
 
-        # Открываем фото
-        photo = Image.open(path)
-        photo.thumbnail((1920, 1080), Image.Resampling.LANCZOS)
-        # Определяем размеры и отступы
-        bg_width, bg_height = background.size
-        photo_width, photo_height = photo.size
-        padding = 20  # Отступы
-        # Вычисляем позицию для размещения фото
-        x = (bg_width - photo_width) // 2
-        y = padding
-        # Вставляем фото на фон
-        background.paste(photo, (x, y))
-        # Создаем объект для рисования
-        draw = ImageDraw.Draw(background)
-        # 3. Задаем координаты области для текста (левый верхний угол и правый нижний угол)
-        # 3. Задаем координаты области (левый верхний угол и правый нижний угол)
-        top_left = (50, 50)  # координаты левого верхнего угла
-        bottom_right = (300, 150)  # координаты правого нижнего угла
-        # 5. Задаем текст и шрифт
-        font = ImageFont.load_default()  # используем стандартный шрифт
+        if current_line:
+            lines.append(current_line)
 
-        # 6. Задаем координаты для текста (левый верхний угол области)
-        text_position = (top_left[0] + 10, top_left[1] + 10)  # немного отступаем от границ
+        line_spacing = 35
+        y = text_position[1]
+        total_text_height = 0
 
-        # 7. Рисуем текст на изображении
-        draw.text(text_position, text_list[index], fill="black", font=font)
+        # Сначала вычисляем общую высоту текста
+        text_height = 80
+        total_text_height += text_height + line_spacing
 
-        # Сохраняем итоговое изображение
-        background.save(f'files/{user_id}_generated/end_{index}.png', format='PNG')
+        # Проверяем, помещается ли текст в заданной области
+        if total_text_height > (end_text - text_position[1]):
+            # Если текст не помещается, можно обрезать его или обрабатывать по-другому
+            lines = lines[:(end_text - text_position[1]) // (font_size + line_spacing)]
 
+        # Рисуем текст
+        y = text_position[1]
+        for line in lines:
+            text_height = 80
+            draw.text((text_position[0], y), line, font=font, fill=(173, 216, 230))
+            y += text_height + line_spacing
+        try:
+            overlay_image = Image.open(photo_list[index])
 
-if __name__ == '__main__':
-    photo_path = ['files/1137048397_generated/1.jpg']
-    text_list = ['"Это пример текста, который будет перенесен на изображении. Он не должен выходить за пределы заданной области.Он не должен выходить за пределы заданной области.Он не должен выходить за пределы заданной области.Он не должен выходить за пределы заданной области.Он не должен выходить за пределы заданной области."']
-    user_id = '1137048397'
-    asyncio.run(photo_maker_func(photo_path, text_list, user_id))
+            if overlay_image.mode != 'RGBA':
+                overlay_image = overlay_image.convert('RGBA')
+            overlay_image = overlay_image.resize((1850, 1850))
+            overlay_position = (170, 100)
+            draw = ImageDraw.Draw(image)
+            border_color = (173, 216, 230)
+            border_thickness = 20
+            border_box = (
+                overlay_position[0] - border_thickness + 5,
+                overlay_position[1] - border_thickness + 5,
+                overlay_position[0] + overlay_image.width + border_thickness - 5,
+                overlay_position[1] + overlay_image.height + border_thickness - 5
+            )
+
+            corner_radius = 30
+            draw.rounded_rectangle(border_box, radius=corner_radius, outline=border_color, width=border_thickness)
+            image.paste(overlay_image, overlay_position, overlay_image)
+            jpeg_path = f'files/{user_id}_generated/output_image_{index}.jpeg'
+            image.convert('RGB').save(jpeg_path, 'JPEG', quality=85)  # Установите желаемое качество
+            end_photo_list.append(jpeg_path)
+            image.close()
+            os.remove(f'/root/bot_giga/files/{user_id}_generated/background_photo.png')
+        except Exception as _ex:
+            logger.error(f'Photomaker error --> {_ex}')
+            image.close()
+
+    return end_photo_list
