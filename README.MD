@@ -13,10 +13,10 @@ Aiogram3 | SQLAlchemy | MJ | OpenAI | Pillow
 # Установка
 
 Linux
-Клонировать репозиторий ```git clone https://github.com/QSlxTy/GigaChatAIBot.git```
-Перейти в директорию ```cd GigaChatAIBot```
-Создать виратульное окружение ```python3 -m venv venv```
-Активировать venv ```source venv/bin/activate```
-Установить зависимсоти ```pip install -r requirements.txt```
-Создать файл ```.env``` и заполнить его
+Клонировать репозиторий ```git clone https://github.com/QSlxTy/GigaChatAIBot.git```\n
+Перейти в директорию ```cd GigaChatAIBot```\n
+Создать виратульное окружение ```python3 -m venv venv```\n
+Активировать venv ```source venv/bin/activate```\n
+Установить зависимсоти ```pip install -r requirements.txt```\n
+Создать файл ```.env``` и заполнить его\n
 Запустить удобным способом скрипт через main.py
